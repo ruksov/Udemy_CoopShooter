@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "CSCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
 {
@@ -18,6 +21,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+    void BeginCrouch();
+
+    void EndCrouch();
 
     // Function to bind move action to forward
     void MoveForward(float value);
@@ -32,4 +39,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    USpringArmComponent* SpringArmComp;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UCameraComponent* CameraComp;
 };
