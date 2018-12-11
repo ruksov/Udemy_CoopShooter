@@ -20,8 +20,10 @@ ACSCharacter::ACSCharacter()
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
     CameraComp->SetupAttachment(SpringArmComp);
 
-    // Enable crouching for character
-    GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+    // Enable crouching/jumping for character
+    auto movementComp = GetMovementComponent();
+    movementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
+    movementComp->GetNavAgentPropertiesRef().bCanJump = true;
 }
 
 // Called when the game starts or when spawned
@@ -71,5 +73,8 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
     PlayerInputComponent->BindAction("Crouch", EInputEvent::IE_Pressed, this, &ACSCharacter::BeginCrouch);
     PlayerInputComponent->BindAction("Crouch", EInputEvent::IE_Released, this, &ACSCharacter::EndCrouch);
+
+    // CHALANGE CODE
+    PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACSCharacter::Jump);
 }
 

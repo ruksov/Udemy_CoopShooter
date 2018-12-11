@@ -23,7 +23,6 @@ protected:
 	virtual void BeginPlay() override;
 
     void BeginCrouch();
-
     void EndCrouch();
 
     // Function to bind move action to forward
