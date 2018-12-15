@@ -18,6 +18,16 @@ public:
 	// Sets default values for this character's properties
 	ACSCharacter();
 
+public:
+    // Called every frame
+    void Tick(float DeltaTime) override;
+
+    // Called to bind functionality to input
+    void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    // Returns CameraComp location if it's set
+    FVector GetPawnViewLocation() const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,13 +40,6 @@ protected:
 
     // Function to bind move action to right
     void MoveRight(float value);
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
