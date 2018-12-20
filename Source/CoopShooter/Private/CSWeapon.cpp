@@ -15,86 +15,78 @@ ACSWeapon::ACSWeapon()
     , MuzzleSocketName("MuzzleSocket")
     , TracerTargetName("Target")
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
     RootComponent = MeshComp;
 }
 
 void ACSWeapon::Fire()
 {
-    AActor* owner = GetOwner();
-    if (owner)
+    AActor* Owner = GetOwner();
+    if (Owner)
     {
-        FVector eyeLocation;
-        FRotator eyeRotation;
-        owner->GetActorEyesViewPoint(eyeLocation, eyeRotation);
+        FVector EyeLocation;
+        FRotator EyeRotation;
+        Owner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-        FVector shootDirection = eyeRotation.Vector();
-        FVector endTrace = eyeLocation + (shootDirection * 10000);
+        FVector ShootDirection = EyeRotation.Vector();
+        FVector EndTrace = EyeLocation + (ShootDirection * 10000);
 
-        // End point for tracer effect
-        FVector tracerEndPoint = endTrace;
+        FCollisionQueryParams QueryParams;
+        QueryParams.AddIgnoredActor(Owner);
+        QueryParams.AddIgnoredActor(this);
+        QueryParams.bTraceComplex = true;
 
-        FCollisionQueryParams queryParams;
-        queryParams.AddIgnoredActor(owner);
-        queryParams.AddIgnoredActor(this);
-        queryParams.bTraceComplex = true;
-
-        FHitResult hit;
-        if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation
-            , endTrace
+        FHitResult Hit;
+        if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation
+            , EndTrace
             , ECollisionChannel::ECC_Visibility
-            , queryParams))
+            , QueryParams))
         {
             // True if we block something
             // Do damage logic
 
-            AActor* hitActor = hit.GetActor();
-            UGameplayStatics::ApplyPointDamage(hitActor
+            AActor* HitActor = Hit.GetActor();
+            UGameplayStatics::ApplyPointDamage(HitActor
                 , 20.f
-                , shootDirection
-                , hit
-                , owner->GetInstigatorController()
+                , ShootDirection
+                , Hit
+                , Owner->GetInstigatorController()
                 , this
                 , DamageType);
 
             if (ImpactEffect)
             {
-                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
-            }
-
-            tracerEndPoint = hit.ImpactPoint;
-        }
-
-        if (MuzzleEffect)
-        {
-            UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
-        }
-
-        if (TracerEffect)
-        {
-            FVector muzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
-            auto tracerEffectComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, muzzleLocation);
-            if (tracerEffectComp)
-            {
-                tracerEffectComp->SetVectorParameter(TracerTargetName, tracerEndPoint);
+                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
             }
         }
+
+        PlayFireEffects(Hit.IsValidBlockingHit() ? Hit.ImpactPoint : EndTrace);
     }
 }
 
-// Called when the game starts or when spawned
-void ACSWeapon::BeginPlay()
+void ACSWeapon::PlayFireEffects(const FVector& TraceEndPoint)
 {
-	Super::BeginPlay();
-	
+    if (MuzzleEffect)
+    {
+        UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
+    }
+
+    if (TracerEffect)
+    {
+        FVector muzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+        auto tracerEffectComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, muzzleLocation);
+        if (tracerEffectComp)
+        {
+            tracerEffectComp->SetVectorParameter(TracerTargetName, TraceEndPoint);
+        }
+    }
+
+    auto MyOwner = Cast<APawn>(GetOwner());
+    if (MyOwner)
+    {
+        auto PC = Cast<APlayerController>(MyOwner->GetController());
+        if (PC)
+        {
+            PC->ClientPlayCameraShake(FireCameraShake);
+        }
+    }
 }
-
-// Called every frame
-void ACSWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ACSWeapon;
 
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
@@ -35,11 +36,18 @@ protected:
     void BeginCrouch();
     void EndCrouch();
 
+    /// Zoom functions
+    void BeginZoom();
+    void EndZoom();
+
     // Function to bind move action to forward
     void MoveForward(float value);
 
     // Function to bind move action to right
     void MoveRight(float value);
+
+    // Functionto bind fire action
+    void Fire();
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -47,4 +55,23 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UCameraComponent* CameraComp;
+
+    /// Zoom variables
+    bool bWantsToZoom;
+    float DefaultFOV;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Player")
+    float ZoomedFOV;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+    float ZoomInterpSpeed;
+
+    /// Weapon variables
+    ACSWeapon* CurrentWeapon;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Player")
+    TSubclassOf<ACSWeapon> SpawnWeaponClass;
+
+    UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+    FName WeaponAttachSocketName;
 };
