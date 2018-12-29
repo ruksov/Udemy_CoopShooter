@@ -34,7 +34,7 @@ protected:
     void PlayFireEffects(const FVector& tracerEndPoint);
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     USkeletalMeshComponent* MeshComp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
@@ -68,11 +68,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Weapon|Damage", meta=(DisplayName="Base Damage"))
     float m_baseDamage; 
 
-    UPROPERTY(EditDefaultsOnly, Category = "Weapon|Damage", meta = (DisplayName = "Damage Vulnarable Multiplier"))
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon|Damage", meta=(DisplayName="Damage Vulnarable Multiplier"))
     float m_vulnerableMultiplier;
 
     /// Fire config
-    UPROPERTY(EditDefaultsOnly, Category = "Weapon|Fire", meta = (DisplayName = "Bullets Per Minute"))
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon|Fire", meta=(DisplayName="Bullets Per Minute"))
     uint32 m_bulletsPerMinute;
 
 private:
