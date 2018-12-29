@@ -4,3 +4,13 @@
 
 #include "CoreMinimal.h"
 
+namespace surface
+{
+    constexpr auto gFleshDefault = EPhysicalSurface::SurfaceType1;
+    constexpr auto gFleshVulnerable = EPhysicalSurface::SurfaceType2;
+}
+
+namespace collision_channel
+{
+    constexpr auto gWeapon = ECollisionChannel::ECC_GameTraceChannel1;
+}

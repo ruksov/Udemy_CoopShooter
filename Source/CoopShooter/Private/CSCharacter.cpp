@@ -69,6 +69,22 @@ void ACSCharacter::EndZoom()
     bWantsToZoom = false;
 }
 
+void ACSCharacter::BeginFire()
+{
+    if (CurrentWeapon)
+    {
+        CurrentWeapon->StartFire();
+    }
+}
+
+void ACSCharacter::EndFire()
+{
+    if (CurrentWeapon)
+    {
+        CurrentWeapon->StopFire();
+    }
+}
+
 void ACSCharacter::MoveForward(float value)
 {
     AddMovementInput(GetActorForwardVector(), value);
@@ -77,14 +93,6 @@ void ACSCharacter::MoveForward(float value)
 void ACSCharacter::MoveRight(float value)
 {
     AddMovementInput(GetActorRightVector(), value);
-}
-
-void ACSCharacter::Fire()
-{
-    if (CurrentWeapon)
-    {
-        CurrentWeapon->Fire();
-    }
 }
 
 // Called every frame
@@ -117,7 +125,8 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
     PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Released, this, &ACSCharacter::EndZoom);
 
     // Fire
-    PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACSCharacter::Fire);
+    PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACSCharacter::BeginFire);
+    PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACSCharacter::EndFire);
 
     // CHALANGE CODE
     PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACSCharacter::Jump);

@@ -40,14 +40,15 @@ protected:
     void BeginZoom();
     void EndZoom();
 
+    /// Fire functions();
+    void BeginFire();
+    void EndFire();
+
     // Function to bind move action to forward
     void MoveForward(float value);
 
     // Function to bind move action to right
     void MoveRight(float value);
-
-    // Functionto bind fire action
-    void Fire();
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
