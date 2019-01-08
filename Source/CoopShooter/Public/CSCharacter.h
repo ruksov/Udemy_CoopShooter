@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ACSWeapon;
+class UCSHealthComponent;
 
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
@@ -50,6 +51,14 @@ protected:
     // Function to bind move action to right
     void MoveRight(float value);
 
+    UFUNCTION()
+    void OnHealthChanged(UCSHealthComponent* OwningHealthComp,
+            float Health,
+            float DeltaHealth,
+            const class UDamageType* DamageType,
+            class AController* InstigatedBy,
+            AActor* DamageCauser);
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USpringArmComponent* SpringArmComp;
@@ -75,4 +84,11 @@ protected:
 
     UPROPERTY(VisibleDefaultsOnly, Category = "Player")
     FName WeaponAttachSocketName;
+
+    /// Health part
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+    UCSHealthComponent* HealthComp;
+
+    UPROPERTY(BlueprintReadOnly, Category="Player")
+    bool bDied;
 };

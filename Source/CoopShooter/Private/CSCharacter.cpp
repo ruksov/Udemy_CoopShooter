@@ -3,8 +3,10 @@
 #include "CSCharacter.h"
 
 #include "CSWeapon.h"
+#include "Components/CSHealthComponent.h"
 
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -17,6 +19,8 @@ ACSCharacter::ACSCharacter()
     , ZoomedFOV(65.f)
     , ZoomInterpSpeed(20.f)
     , WeaponAttachSocketName("WeaponSocket")
+    , HealthComp(CreateDefaultSubobject<UCSHealthComponent>(TEXT("HealthComp")))
+    , bDied(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,6 +34,8 @@ ACSCharacter::ACSCharacter()
     auto MovementComp = GetMovementComponent();
     MovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
     MovementComp->GetNavAgentPropertiesRef().bCanJump = true;
+
+    HealthComp->OnHealthChanged.AddDynamic(this, &ACSCharacter::OnHealthChanged);
 }
 
 // Called when the game starts or when spawned
@@ -93,6 +99,26 @@ void ACSCharacter::MoveForward(float value)
 void ACSCharacter::MoveRight(float value)
 {
     AddMovementInput(GetActorRightVector(), value);
+}
+
+void ACSCharacter::OnHealthChanged(UCSHealthComponent * OwningHealthComp,
+    float Health,
+    float DeltaHealth,
+    const UDamageType * DamageType,
+    AController * InstigatedBy,
+    AActor * DamageCauser)
+{
+    if (Health <= 0.f && !bDied)
+    {
+        // Handle some die
+        bDied = true;
+
+        GetMovementComponent()->StopMovementImmediately();
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+        DetachFromControllerPendingDestroy();
+        SetLifeSpan(10.f);
+    }
 }
 
 // Called every frame
