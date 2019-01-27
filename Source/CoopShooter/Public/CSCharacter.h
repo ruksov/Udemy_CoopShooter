@@ -77,6 +77,7 @@ protected:
     float ZoomInterpSpeed;
 
     /// Weapon variables
+    UPROPERTY(Replicated)
     ACSWeapon* CurrentWeapon;
 
     UPROPERTY(EditDefaultsOnly, Category = "Player")

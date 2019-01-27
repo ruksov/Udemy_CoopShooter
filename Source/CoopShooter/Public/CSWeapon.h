@@ -11,6 +11,23 @@ class UDamageType;
 class UParticleSystem;
 class UCameraShake;
 
+// Contains information of a single hitscan weapon linetrace.
+USTRUCT()
+struct FHitScanTrace
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY()
+    TEnumAsByte<EPhysicalSurface> SurfaceType;
+
+    UPROPERTY()
+    FVector_NetQuantize TraceTo;
+
+    UPROPERTY()
+    uint8 AlwaysChangedField;
+};
+
 UCLASS()
 class COOPSHOOTER_API ACSWeapon : public AActor
 {
@@ -32,6 +49,14 @@ protected:
     virtual void Fire();
 
     void PlayFireEffects(const FVector& tracerEndPoint);
+    void PlayImpactEffects(EPhysicalSurface SurfaceType, const FVector& TraceTo);
+
+    /// Network
+    UFUNCTION(Server, Reliable, WithValidation)
+    void ServerFire();
+
+    UFUNCTION()
+    void OnRep_HitScanTrace();
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
@@ -74,6 +99,10 @@ protected:
     /// Fire config
     UPROPERTY(EditDefaultsOnly, Category = "Weapon|Fire", meta=(DisplayName="Bullets Per Minute"))
     uint32 m_bulletsPerMinute;
+
+    ///Network
+    UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+    FHitScanTrace HitScanTrace;
 
 private:
     float m_fireRate;

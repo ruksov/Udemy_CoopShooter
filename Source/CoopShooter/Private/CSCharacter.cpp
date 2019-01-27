@@ -7,10 +7,12 @@
 
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Engine/World.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ACSCharacter::ACSCharacter()
@@ -34,8 +36,6 @@ ACSCharacter::ACSCharacter()
     auto MovementComp = GetMovementComponent();
     MovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
     MovementComp->GetNavAgentPropertiesRef().bCanJump = true;
-
-    HealthComp->OnHealthChanged.AddDynamic(this, &ACSCharacter::OnHealthChanged);
 }
 
 // Called when the game starts or when spawned
@@ -44,14 +44,19 @@ void ACSCharacter::BeginPlay()
 	Super::BeginPlay();
 	
     DefaultFOV = CameraComp->FieldOfView;
+    HealthComp->OnHealthChanged.AddDynamic(this, &ACSCharacter::OnHealthChanged);
 
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    CurrentWeapon = GetWorld()->SpawnActor<ACSWeapon>(SpawnWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-    if (CurrentWeapon)
+    if (Role == ROLE_Authority)
     {
-        CurrentWeapon->SetOwner(this);
-        CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+        /// Run this code only on server ACSCharacter instances.
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        CurrentWeapon = GetWorld()->SpawnActor<ACSWeapon>(SpawnWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+        if (CurrentWeapon)
+        {
+            CurrentWeapon->SetOwner(this);
+            CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+        }
     }
 }
 
@@ -167,3 +172,9 @@ FVector ACSCharacter::GetPawnViewLocation() const
     return Super::GetPawnViewLocation();
 }
 
+void ACSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ACSCharacter, CurrentWeapon);
+}
