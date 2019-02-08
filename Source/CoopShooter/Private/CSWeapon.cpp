@@ -28,6 +28,11 @@ ACSWeapon::ACSWeapon()
     RootComponent = MeshComp;
     SetReplicates(true);
 
+    // 
+    // UE reduces network update tick rate if the actor
+    // doesn't very often changes. So we change this minimal
+    // reduce value to 33 fps (by default it was 2 fps).
+    //
     NetUpdateFrequency = 66.f;
     MinNetUpdateFrequency = 33.f;
 }
@@ -91,7 +96,7 @@ void ACSWeapon::Fire()
             // True if we block something
             // Do damage logic
 
-            auto SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+            SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
             float CurrentDamage = m_baseDamage;
             if (SurfaceType == surface::gFleshVulnerable)
             {
@@ -112,12 +117,11 @@ void ACSWeapon::Fire()
             PlayImpactEffects(SurfaceType, ImpactPoint);
         }
 
-        FVector TraceTo = Hit.IsValidBlockingHit() ? Hit.ImpactPoint : EndTrace;
-        PlayFireEffects(TraceTo);
+        PlayFireEffects(ImpactPoint);
 
         if (Role == ROLE_Authority)
         {
-            HitScanTrace.TraceTo = TraceTo;
+            HitScanTrace.TraceTo = ImpactPoint;
             HitScanTrace.SurfaceType = SurfaceType;
 
             // Change this field to prevent bug with not replicating shoots, which were made to the same place.

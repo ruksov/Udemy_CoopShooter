@@ -90,6 +90,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
     UCSHealthComponent* HealthComp;
 
-    UPROPERTY(BlueprintReadOnly, Category="Player")
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Player")
     bool bDied;
 };

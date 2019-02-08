@@ -177,4 +177,11 @@ void ACSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(ACSCharacter, CurrentWeapon);
+
+    //
+    // Replicates this variable, because on change health callback
+    // is called only on server. This allows to run death animation
+    // on client side.
+    //
+    DOREPLIFETIME(ACSCharacter, bDied);
 }

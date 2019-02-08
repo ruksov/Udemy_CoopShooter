@@ -36,6 +36,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health", meta=(DisplayName="Default Health"))
     float m_defaultHealth;
 
-private:
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Health", meta = (DisplayName = "Current Health"))
     float m_currentHealth;
 };
